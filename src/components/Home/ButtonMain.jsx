@@ -10,16 +10,16 @@ export default function ButtonMain({ changeComponent, accentColor, outColor, ins
     }
 
     const stroke1 = {
-        strokeWidth: 2
+        strokeWidth: 1
     }
     const stroke2 = {
-        strokeWidth: 5
+        strokeWidth: 4
     }
     const stroke3 = {
-        strokeWidth: 10
+        strokeWidth: 5
     }
     const stroke4 = {
-        strokeWidth: 14
+        strokeWidth: 8
     }
 
     return (

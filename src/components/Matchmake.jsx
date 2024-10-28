@@ -29,7 +29,7 @@ export default function Matchmake({changeComponent, matchType}) {
   useEffect(() => {
     if(idError === true) {
       alert("IDの取得に失敗しました。ホームに戻ります。")
-      changeComponent(<Home />)
+      changeComponent(Home)
     }
   }, [idError])
 

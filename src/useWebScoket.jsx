@@ -1,4 +1,4 @@
-const { useEffect, useState, useRef } = require("react");
+import { useEffect, useState, useRef } from "react";
 
 const useWebSocket = (url) => {
     const [onmessage, _setOnMessage] = useState(() => {});

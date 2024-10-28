@@ -40,7 +40,7 @@ export default function Home({ changeComponent }) {
             <div>
                 <div style={{...ButtonRowStyle, ...{top:"40%"}}}>
                     <ButtonMain
-                        accentColor="lightblue"
+                        accentColor="#4BDEFF"
                         text={"クイック"}
                         width="30vw"
                         insideColor={"#38a0f0"}
@@ -48,7 +48,7 @@ export default function Home({ changeComponent }) {
                         onClick={()=>changeComponent(Matchmake, {matchType: "quick"})}
                     />
                     <ButtonMain
-                        accentColor="limegreen"
+                        accentColor="#36DA40"
                         text={"ルーム"}
                         width="30vw"
                         insideColor={"#38a0f0"}
@@ -58,7 +58,7 @@ export default function Home({ changeComponent }) {
                 </div>
                 <div style={{...ButtonRowStyle, ...{top:"75%"}}}>
                     <ButtonMain
-                        accentColor="red"
+                        accentColor="#EC6666"
                         text={"ランク"}
                         width="30vw"
                         insideColor={"#38a0f0"}
@@ -66,7 +66,7 @@ export default function Home({ changeComponent }) {
                         onClick={()=>changeComponent(Matchmake, {matchType: "ranking"})}
                     />
                     <ButtonMain
-                        accentColor="purple"
+                        accentColor="#8A44EB"
                         text={"修行"}
                         width="30vw"
                         insideColor={"#38a0f0"}

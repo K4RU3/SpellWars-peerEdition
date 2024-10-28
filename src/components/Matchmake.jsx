@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import Home from './Home'
 import { useAppContext } from '../AppContext'
@@ -26,11 +26,18 @@ export default function Matchmake({changeComponent, matchType}) {
     setDotCount(()=>(dotCount+1)%4)
   }, 500)
 
+  useEffect(() => {
+    if(idError === true) {
+      alert("IDの取得に失敗しました。ホームに戻ります。")
+      changeComponent(<Home />)
+    }
+  }, [idError])
+
   return (
     <div>
       <div style={loadDivStyle}>
         <Magic_load style={loadStyle}/>
-        <p style={{display: "block", position: "relative", bottom: "0%"}}>{"Matchmaking" + ".".repeat(dotCount)}</p>
+        <p style={{display: "block", position: "relative", bottom: "0%"}}>{idLoading ? "Loading" : "Matchmaking" + ".".repeat(dotCount)}</p>
       </div>
     </div>
   )

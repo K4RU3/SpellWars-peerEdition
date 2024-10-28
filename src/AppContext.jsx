@@ -8,15 +8,18 @@ export function AppProvider({ children }) {
   const [id, setID] = useState(null);
   const [idLoading, setIdLoading] = useState(false);
   const [idError, setIdError] = useState(false);
-  const [isDebug, setIsDebug] = useState(false);
+  const [isDebug, setIsDebug] = useState(null);
 
   useEffect(()=>{
     if(process.env.REACT_APP_DEBUG === "true"){
       setIsDebug(true)
+    }else{
+      setIsDebug(false)
     }
   }, [])
 
   useEffect(() => {
+    if(isDebug === null) return;
     (async () => {
       try {
         const url = (isDebug ? "http://localhost:9000" : "" )+ "/api/genID";

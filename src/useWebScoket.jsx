@@ -1,20 +1,22 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useCallback } from 'react';
 
-const useWebSocket = (url) => {
-    const [onmessage, _setOnMessage] = useState(() => {});
-    const [onerror, _setOnError] = useState(() => {});
+const useWebSocket = (url, onMessageCallback, onErrorCallback) => {
     const socketRef = useRef(null);
+
+    const onMessage = useCallback(onMessageCallback, [onMessageCallback]);
+    const onError = useCallback(onErrorCallback, [onErrorCallback]);
 
     useEffect(() => {
         if (socketRef.current) socketRef.current.close();
         socketRef.current = new WebSocket(url);
-        socketRef.current.onmessage = (e) => onmessage(e);
-        socketRef.current.onerror = (e) => {
-            onerror(e);
-            socketRef.current.close();
-            return;
-        };
-    }, [url, onmessage, onerror]);
+        if(typeof onMessage === "function") socketRef.current.onmessage = onMessage;
+        if(typeof onError === "function") socketRef.current.onerror = onError;
+
+        return () => {
+            if (socketRef.current) socketRef.current.close();
+            socketRef.current = null;
+        }
+    }, [url, onMessage, onError]);
 
     const send = (data) => {
         if (
@@ -25,25 +27,7 @@ const useWebSocket = (url) => {
         }
     };
 
-    const setOnMessage = (func) => {
-        if (typeof func === "function") {
-            _setOnMessage(func);
-            return true;
-        } else {
-            return false;
-        }
-    };
-
-    const setOnError = (func) => {
-        if (typeof func === "function") {
-            _setOnError(func);
-            return true;
-        } else {
-            return false;
-        }
-    };
-
-    return { send, setOnMessage, setOnError };
+    return { send };
 };
 
 export default useWebSocket;

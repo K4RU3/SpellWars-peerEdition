@@ -1,27 +1,36 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useAppContext } from "./AppContext";
+import useWebSocket from "./useWebScoket"
 
-const useCommunication = (target) => {
-    const [onChars, setOnChars] = useState(() => {});
-    const [onSpell, setOnSpell] = useState(() => {});
-    const [onGameState, setOnGameState] = useState(() => {});
-    const [onError, setOnError] = useState(() => {});
+const useCommunication = (target, onMessage, onError) => {
+    const { origin } = useAppContext();
+    const url = origin + "/ws"
+    const _onMessage = useCallback(onMessage, [onMessage]);
+    const _onError = useCallback(onError, [onError]);
 
-    const wsRef = useRef(null);
-    const peerRef = useRef(null);
+    const [connected, setConnected] = useState(false);
 
-    const {id, idLoading, idError} = useAppContext();
+    const socketRef = useRef(useWebSocket(url, _onMessage, _onError));
+    socketRef.current.onmessage = function pre_onMessage(msg) {
+        if(msg.data === "connected") {
+            setConnected(true);
+            socketRef.current.removeEventListener("message", pre_onMessage);
+            socketRef.current.onmessage = _onMessage;
+            socketRef.current.onerror = (e) => {
+                _onError(e);
+            };
+        }
+    }
 
-    const targetWSURL = idLoading === false && idError === false ? 
-        process.env.REACT_APP_DEBUG === "true" ? "ws://localhost:9000/ws" : "/ws"
-    : ""
+    const send = useCallback((data) => {
+        if(connected && socketRef.current.readyState === WebSocket.OPEN) {
+            socketRef.current.send(data);
+        }else{
+            console.warn("Not connected");
+        }
+    }, [connected])
 
-    if(targetWSURL === "") return;
-
-    //現在のpeerjsが無効のためwsのみで通信
-    wsRef.current = new WebSocket(targetWSURL)
-
-    return {};
+    return { send };
 }
 
 export default useCommunication;

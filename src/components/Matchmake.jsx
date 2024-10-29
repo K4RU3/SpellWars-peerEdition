@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Home from './Home';
 import { useAppContext } from '../AppContext';
 import MagicLoad from './other/MagicLoad';
+import useMatchmake from '../useMatchmake';
 
 //仮
 
@@ -10,6 +11,7 @@ export default function Matchmake({ changeComponent, matchType }) {
     const { id, idLoading, idError } = useAppContext();
 
     const [dotCount, setDotCount] = useState(0);
+
 
     const loadDivStyle = {
         display: 'flex',
@@ -32,7 +34,7 @@ export default function Matchmake({ changeComponent, matchType }) {
         bottom: '0%',
         textAlign: "center",
     };
-    const text = idLoading ? 'Loading' : 'Matchmaking' + '.'.repeat(dotCount);
+    const text = (idLoading ? 'Loading' : 'Matchmaking') + '.'.repeat(dotCount);
 
     //dot count
     useEffect(()=>{
@@ -50,11 +52,6 @@ export default function Matchmake({ changeComponent, matchType }) {
             changeComponent(Home);
         }
     }, [idError, changeComponent]);
-
-    //matchmake system
-    useEffect(() => {
-        console.log("use effect")
-    }, [])
 
 
     return (

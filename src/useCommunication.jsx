@@ -3,7 +3,7 @@ import { useAppContext } from "./AppContext";
 import useWebSocket from "./useWebScoket"
 
 const useCommunication = (target, onMessage, onError) => {
-    const { origin } = useAppContext();
+    const { origin, id } = useAppContext();
     const url = origin + "/ws"
     const _onMessage = useCallback(onMessage, [onMessage]);
     const _onError = useCallback(onError, [onError]);
@@ -21,6 +21,13 @@ const useCommunication = (target, onMessage, onError) => {
             };
         }
     }
+
+    socketRef.currrent.onopen = () => {
+        socketRef.current.send(JSON.stringify({
+            targetID: target,
+            selfID: id
+        }))
+    };
 
     const send = useCallback((data) => {
         if(connected && socketRef.current.readyState === WebSocket.OPEN) {

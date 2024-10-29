@@ -11,8 +11,6 @@ export function AppProvider({ children }) {
     const [isDebug, setIsDebug] = useState(null);
     const [origin, setOrigin] = useState("");
 
-    const [matchmakeWS, setMatchmakeWS] = useState(null);
-
     //初回読み込み
     useEffect(() => {
         if (process.env.REACT_APP_DEBUG === "true") {
@@ -46,47 +44,8 @@ export function AppProvider({ children }) {
         })();
     }, [isDebug, origin]);
 
-    //matchmake system
-    useEffect(() => {
-        //matchmake system
-        const ws = new WebSocket(origin + "/matchmake");
-        setMatchmakeWS(ws);
-        ws.onmessage = (msg) => {
-            try{
-                const data = JSON.parse(msg.data);
-                if(data?.type === "success"){
-                    //成功
-                    if(data?.id !== undefined){
-                        //マッチングが成功したことを通知+idを送信
-                    }
-                }else{
-                    //エラー
-                }
-            }catch(e){
-                console.warn("Invalid matchmake message: ", msg.data);
-            }
-        }
-
-        return () => {
-            ws.close();
-        }
-    }, [origin]);
-    const matchmake = (type, selfID, targetID, successCallback) => {
-        if(type && selfID && targetID){
-            if(typeof type === "string" && typeof selfID === "string" && typeof targetID === "string"){
-                if(type === "quick"){
-                    matchmakeWS.send(JSON.stringify({
-                        type: "quick",
-                        targetID: targetID,
-                        selfID: selfID
-                    }));
-                }
-            }
-        }
-    }
-
     return (
-        <AppContext.Provider value={{ id, idLoading, idError, isDebug, matchmake }}>
+        <AppContext.Provider value={{ id, idLoading, idError, isDebug }}>
             {children}
         </AppContext.Provider>
     );

@@ -45,7 +45,7 @@ export function AppProvider({ children }) {
     }, [isDebug, origin]);
 
     return (
-        <AppContext.Provider value={{ id, idLoading, idError, isDebug }}>
+        <AppContext.Provider value={{ id, idLoading, idError, isDebug, origin }}>
             {children}
         </AppContext.Provider>
     );

@@ -11,6 +11,8 @@ export default function Matchmake({ changeComponent, matchType }) {
     const { id, idLoading, idError } = useAppContext();
 
     const [dotCount, setDotCount] = useState(0);
+    const { matchmake } = useMatchmake();
+    const [matchState, setMatchState] = useState("wating");
 
 
     const loadDivStyle = {
@@ -53,6 +55,26 @@ export default function Matchmake({ changeComponent, matchType }) {
         }
     }, [idError, changeComponent]);
 
+    useEffect(() => {
+        if(matchState === "wating"){
+            setMatchState("matching")
+            const matchData = {
+                id,
+                matchType,
+                rate: 0,
+                roomWord: ""
+            }
+            const handleCallback = (targetID) => {
+                console.log(targetID);
+                changeComponent(Home);
+            }
+            const handleError = (e) => {
+                console.log(e);
+                changeComponent(Home);
+            }
+            matchmake(matchData, { callback: handleCallback, onError: handleError });
+        }
+    }, [changeComponent, id, matchState, matchmake, matchType, setMatchState]);
 
     return (
         <div>

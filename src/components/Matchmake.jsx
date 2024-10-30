@@ -14,6 +14,11 @@ export default function Matchmake({ changeComponent, matchType }) {
     const { matchmake } = useMatchmake();
     const [matchState, setMatchState] = useState("wating");
 
+    const [endMatchmake, setEndMatchmake] = useState(null);
+    useEffect(()=>{
+        return ()=>{if(typeof endMatchmake === "function") endMatchmake()}
+    })
+
 
     const loadDivStyle = {
         display: 'flex',
@@ -72,7 +77,8 @@ export default function Matchmake({ changeComponent, matchType }) {
                 console.log(e);
                 changeComponent(Home);
             }
-            matchmake(matchData, { callback: handleCallback, onError: handleError });
+            const endmathmake = matchmake(matchData, { callback: handleCallback, onError: handleError });
+            setEndMatchmake(() => endmathmake);
         }
     }, [changeComponent, id, matchState, matchmake, matchType, setMatchState]);
 

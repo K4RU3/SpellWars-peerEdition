@@ -9,6 +9,7 @@ const useMatchmake = () => {
         { matchType, rate, roomWord },
         { callback = () => {}, onError = () => {} } = {}
     ) => {
+        if(socketRef.current) socketRef.current.close();
         if (typeof callback !== 'function')
             throw new Error('callback is not a function');
         if (typeof onError !== 'function')
@@ -34,6 +35,12 @@ const useMatchmake = () => {
                 }
             }
         };
+
+        const endMatchmake = () => {
+            socketRef.current.close();
+        }
+
+        return endMatchmake;
     };
 
     return { matchmake };

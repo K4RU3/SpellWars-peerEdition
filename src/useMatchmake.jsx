@@ -29,8 +29,11 @@ const useMatchmake = () => {
                             callback(id, data.id);
                             socketRef.current.close();
                         }
+                    }else if(data?.retry === true){
+                        onError(data.message, true);
+                        socketRef.current.close();
                     }else{
-                        onError(data.message);
+                        onError(data.message, false);
                         socketRef.current.close();
                     }
                 } catch (e) {

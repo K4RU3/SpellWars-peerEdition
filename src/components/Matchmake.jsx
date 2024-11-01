@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 import Home from './Home';
+import Battle from './Battle';
 import MagicLoad from './other/MagicLoad';
 import useMatchmake from '../useMatchmake';
-import {useAppContext} from '../AppContext';
+import { useAppContext } from '../AppContext';
 
 //仮
 
 export default function Matchmake({ changeComponent, matchType }) {
-    const {origin} = useAppContext();
+    const { origin } = useAppContext();
 
     const [isLoadingId, setIsLoadingId] = useState(true);
     const [dotCount, setDotCount] = useState(0);
@@ -52,20 +53,25 @@ export default function Matchmake({ changeComponent, matchType }) {
     const searchMatch = useCallback(() => {
         //callbacks
         const handleMatching = (selfID, targetID) => {
-            if(targetID){
+            if (targetID) {
                 console.log(`matched: ${selfID} ${targetID}`);
+                changeComponent(Battle, { selfID, targetID });
+            }
+        };
+
+        const handleMatchingError = (msg, retry) => {
+            if(retry === true){
+                console.log('retrying...');
+                setTimeout(() => {
+                    searchMatch();
+                }, 5000);
+            }else{
+                console.log("Failed to match: " + msg);
                 changeComponent(Home);
             }
         };
-    
-        const handleMatchingError = () => {
-            setTimeout(() => {
-                console.log("retrying...");
-                searchMatch();
-            }, 5000);
-        };
 
-        fetch((origin || "") + '/api/genID').then((e) => {
+        fetch((origin || '') + '/api/genID').then((e) => {
             e.text().then((e) => {
                 const id = e;
                 setIsLoadingId(false);
@@ -83,13 +89,12 @@ export default function Matchmake({ changeComponent, matchType }) {
         const endmatchCallback = endMatchmake.current;
 
         return () => {
-            if(typeof endmatchCallback === "function"){
+            if (typeof endmatchCallback === 'function') {
                 endmatchCallback();
             }
-        }
+        };
     }, [searchMatch]);
 
-    
     return (
         <div>
             <div style={loadDivStyle}>

@@ -5,9 +5,6 @@ const AppContext = createContext();
 
 export function AppProvider({ children }) {
     // ここでエクスポート
-    const [id, setID] = useState(null);
-    const [idLoading, setIdLoading] = useState(false);
-    const [idError, setIdError] = useState(false);
     const [isDebug, setIsDebug] = useState(null);
     const [origin, setOrigin] = useState("");
 
@@ -21,31 +18,8 @@ export function AppProvider({ children }) {
         }
     }, []);
 
-    //id取得
-    useEffect(() => {
-        if (isDebug === null) return;
-        (async () => {
-            try {
-                const url =
-                    origin + "/api/genID";
-                const response = await fetch(url);
-                if (response.ok) {
-                    const text = await response.text();
-                    setID(text);
-                    setIdLoading(false);
-                } else {
-                    setIdError(true);
-                    setIdLoading(false);
-                }
-            } catch {
-                setIdError(true);
-                setIdLoading(false);
-            }
-        })();
-    }, [isDebug, origin]);
-
     return (
-        <AppContext.Provider value={{ id, idLoading, idError, isDebug, origin }}>
+        <AppContext.Provider value={{ isDebug, origin }}>
             {children}
         </AppContext.Provider>
     );

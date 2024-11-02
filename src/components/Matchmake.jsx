@@ -72,10 +72,12 @@ export default function Matchmake({ changeComponent, matchType }) {
         };
 
         fetch((origin || '') + '/api/genID').then((e) => {
+            const rate = Number(localStorage.getItem('rate')) || 0;
+            const roomWord = localStorage.getItem('roomWord');
             e.text().then((e) => {
                 const id = e;
                 setIsLoadingId(false);
-                const matchData = { matchType, rate: 0, roomWord: '' };
+                const matchData = { matchType, rate, roomWord };
                 endMatchmake.current = matchmake.current(id, matchData, {
                     callback: handleMatching,
                     onError: handleMatchingError,

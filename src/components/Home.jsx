@@ -16,6 +16,26 @@ export default function Home({ changeComponent }) {
         left: "50%",
     };
 
+    // Debug用
+    const [roomWord, setRoomWord] = React.useState(localStorage.getItem("roomWord") || undefined);
+    const [rate, setRate] = React.useState(localStorage.getItem("rate") || undefined);
+    const matchStatusStyle = {
+        display: "flex",
+        position: "absolute",
+        top: "0",
+        left: "0"
+    }
+    const handleWordInput = (e) => {
+        setRoomWord(e.target.value);
+        localStorage.setItem("roomWord", e.target.value);
+    }
+    const handleRateInput = (e) => {
+        if(e.target.value.match(/^[0-9]+$/) || e.target.value === ""){
+            setRate(e.target.value);
+            localStorage.setItem("rate", e.target.value);
+        }
+    }
+
     return (
         <div
             style={{
@@ -74,6 +94,12 @@ export default function Home({ changeComponent }) {
                         onClick={()=>changeComponent(Matchmake, {matchType: "training"})}
                     />
                 </div>
+            </div>
+
+            {/* <debug matchmake status> */}
+            <div style = {matchStatusStyle} >
+                <input type="text" name="" id="" placeholder="roomWord" value={roomWord} onInput={handleWordInput} />
+                <input type="nuber" name="" id="" placeholder="rate" value={rate} onInput={handleRateInput} />
             </div>
         </div>
     );

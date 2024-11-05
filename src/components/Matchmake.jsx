@@ -1,20 +1,15 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import Home from './Home';
 import Battle from './Battle';
 import MagicLoad from './other/MagicLoad';
 import useMatchmake from '../useMatchmake';
-import { useAppContext } from '../AppContext';
 
 //仮
 
-export default function Matchmake({ changeComponent, matchType }) {
-    const { origin } = useAppContext();
-
-    const [isLoadingId, setIsLoadingId] = useState(true);
+export default function Matchmake({ changeComponent, matchType, rate, roomWord }) {
     const [dotCount, setDotCount] = useState(0);
-    const matchmake = useRef(useMatchmake().matchmake);
-    const endMatchmake = useRef(null);
+    const { handleMatchmaking } = useMatchmake();
 
     const loadDivStyle = {
         display: 'flex',
@@ -37,8 +32,7 @@ export default function Matchmake({ changeComponent, matchType }) {
         bottom: '0%',
         textAlign: 'center',
     };
-    const text =
-        (isLoadingId ? 'Loading' : 'Matchmaking') + '.'.repeat(dotCount);
+    const text = 'Matchmaking' + '.'.repeat(dotCount);
 
     //dot count
     useEffect(() => {
@@ -49,53 +43,21 @@ export default function Matchmake({ changeComponent, matchType }) {
         return () => clearInterval(intervalID);
     }, []);
 
-    // matchmaking
-    const searchMatch = useCallback(() => {
-        //callbacks
-        const handleMatching = (selfID, targetID) => {
-            if (targetID) {
-                console.log(`matched: ${selfID} ${targetID}`);
-                changeComponent(Battle, { selfID, targetID });
-            }
-        };
-
-        const handleMatchingError = (msg, retry) => {
-            if(retry === true){
-                console.log('retrying...');
-                setTimeout(() => {
-                    searchMatch();
-                }, 5000);
+    //matchmake
+    useEffect(() => {
+        const endMatching = handleMatchmaking({matchType, rate, roomWord}, (data) => {
+            if(data){
+                changeComponent(Battle, data);
             }else{
-                console.log("Failed to match: " + msg);
+                console.warn("Failed to matchmake.");
                 changeComponent(Home);
             }
-        };
-
-        fetch((origin || '') + '/api/genID').then((e) => {
-            const rate = Number(localStorage.getItem('rate')) || 0;
-            const roomWord = localStorage.getItem('roomWord');
-            e.text().then((e) => {
-                const id = e;
-                setIsLoadingId(false);
-                const matchData = { matchType, rate, roomWord };
-                endMatchmake.current = matchmake.current(id, matchData, {
-                    callback: handleMatching,
-                    onError: handleMatchingError,
-                });
-            });
-        });
-    }, [origin, matchType, changeComponent]);
-
-    useEffect(() => {
-        searchMatch();
-        const endmatchCallback = endMatchmake.current;
+        })
 
         return () => {
-            if (typeof endmatchCallback === 'function') {
-                endmatchCallback();
-            }
-        };
-    }, [searchMatch]);
+            endMatching();
+        }
+    }, [handleMatchmaking, matchType, rate, roomWord, changeComponent]);
 
     return (
         <div>

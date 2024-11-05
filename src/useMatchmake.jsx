@@ -1,56 +1,64 @@
-import { useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useAppContext } from './AppContext.jsx';
 
 const useMatchmake = () => {
     const { origin } = useAppContext();
-    const socketRef = useRef(null);
 
-    const matchmake = (
-        id,
-        { matchType, rate, roomWord },
-        { callback = () => {}, onError = () => {} } = {}
-    ) => {
-        if (socketRef.current) socketRef.current.close();
-        if (typeof callback !== 'function')
-            throw new Error('callback is not a function');
-        if (typeof onError !== 'function')
-            throw new Error('onError is not a function');
-        socketRef.current = new WebSocket((origin || '') + '/matchmake');
+    const [matching, setMatching] = useState(false);
+    const [error, setError] = useState(null);
 
-        socketRef.current.onopen = () => {
-            const payload = JSON.stringify({ id, matchType, rate, roomWord });
-            socketRef.current.send(payload);
-
-            socketRef.current.onmessage = (message) => {
-                try {
-                    const data = JSON.parse(message.data);
-                    if (data.type === 'success') {
-                        if (data.id) {
-                            callback(id, data.id);
-                            socketRef.current.close();
+    const handleMatchmaking = useCallback(({matchType, rate, roomWord}, callback) => {
+        const controller = new AbortController();
+        const signal = controller.signal;
+        const endMatching = () => {
+            controller.abort();
+            setMatching(false);
+            setError(null);
+        }
+        setMatching(true);
+        setError(null);
+        fetch(`${origin}/api/genID`, { signal }).then(e => {
+            if(e.ok){
+                e.text().then(selfID => {
+                    fetch(`${origin}/matchmake/${matchType}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({selfID, rate, roomWord}),
+                        signal
+                    }).then(e => {
+                        if(e.ok){
+                            e.text().then(targetID => {
+                                setError(null);
+                                setMatching(false);
+                                callback({selfID, targetID});
+                            })
+                        }else{
+                            setError(e.statusText);
+                            setMatching(false);
+                            callback(undefined);
                         }
-                    }else if(data?.retry === true){
-                        onError(data.message, true);
-                        socketRef.current.close();
-                    }else{
-                        onError(data.message, false);
-                        socketRef.current.close();
-                    }
-                } catch (e) {
-                    onError(e);
-                    socketRef.current.close();
-                }
-            };
-        };
+                    }).catch(e => {
+                        setError(e.message);
+                        setMatching(false);
+                        callback(undefined);
+                    })
+                })
+            }else{
+                setError(e.statusText);
+                setMatching(false);
+                callback(undefined);
+            }
+        }).catch(e => {
+            setError(e.message);
+            setMatching(false);
+            callback(undefined);
+        })
+        return endMatching;
+    }, [origin]);
 
-        const endMatchmake = () => {
-            socketRef.current.close();
-        };
-
-        return endMatchmake;
-    };
-
-    return { matchmake };
+    return { matching, error, handleMatchmaking };
 };
 
 export default useMatchmake;

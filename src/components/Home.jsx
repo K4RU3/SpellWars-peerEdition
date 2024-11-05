@@ -27,12 +27,10 @@ export default function Home({ changeComponent }) {
     }
     const handleWordInput = (e) => {
         setRoomWord(e.target.value);
-        localStorage.setItem("roomWord", e.target.value);
     }
     const handleRateInput = (e) => {
         if(e.target.value.match(/^[0-9]+$/) || e.target.value === ""){
             setRate(e.target.value);
-            localStorage.setItem("rate", e.target.value);
         }
     }
 
@@ -73,7 +71,7 @@ export default function Home({ changeComponent }) {
                         width="30vw"
                         insideColor={"#38a0f0"}
                         outColor={"#4d1089"}
-                        onClick={()=>changeComponent(Matchmake, {matchType: "room"})}
+                        onClick={()=>changeComponent(Matchmake, {matchType: "quick", roomWord: roomWord})}
                     />
                 </div>
                 <div style={{...ButtonRowStyle, ...{top:"75%"}}}>
@@ -83,7 +81,7 @@ export default function Home({ changeComponent }) {
                         width="30vw"
                         insideColor={"#38a0f0"}
                         outColor={"#4d1089"}
-                        onClick={()=>changeComponent(Matchmake, {matchType: "ranking"})}
+                        onClick={()=>changeComponent(Matchmake, {matchType: "quick", rate: rate})}
                     />
                     <ButtonMain
                         accentColor="#8A44EB"

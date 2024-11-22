@@ -1,64 +1,60 @@
-import { useState, useCallback } from 'react';
-import { useAppContext } from './AppContext.jsx';
+import { useRef, useEffect } from 'react';
+import { useAppContext } from './AppContext';
 
-const useMatchmake = () => {
+const useMatchmake = (type, callback, option) => {
     const { origin } = useAppContext();
+    const controller = useRef(null);
+    const matching = useRef(false);
+    const cb = useRef(callback);
+    const { rate, roomWord } = option;
 
-    const [matching, setMatching] = useState(false);
-    const [error, setError] = useState(null);
-
-    const handleMatchmaking = useCallback(({matchType, rate, roomWord}, callback) => {
-        const controller = new AbortController();
-        const signal = controller.signal;
-        const endMatching = () => {
-            controller.abort();
-            setMatching(false);
-            setError(null);
+    useEffect(() => {
+        const cont = new AbortController()
+        if(matching.current){
+            controller?.abort()
         }
-        setMatching(true);
-        setError(null);
-        fetch(`${origin}/api/genID`, { signal }).then(e => {
-            if(e.ok){
-                e.text().then(selfID => {
-                    fetch(`${origin}/matchmake/${matchType}`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({selfID, rate, roomWord}),
-                        signal
-                    }).then(e => {
-                        if(e.ok){
-                            e.text().then(targetID => {
-                                setError(null);
-                                setMatching(false);
-                                callback({selfID, targetID});
-                            })
-                        }else{
-                            setError(e.statusText);
-                            setMatching(false);
-                            callback(undefined);
-                        }
-                    }).catch(e => {
-                        setError(e.message);
-                        setMatching(false);
-                        callback(undefined);
-                    })
-                })
-            }else{
-                setError(e.statusText);
-                setMatching(false);
-                callback(undefined);
-            }
-        }).catch(e => {
-            setError(e.message);
-            setMatching(false);
-            callback(undefined);
-        })
-        return endMatching;
-    }, [origin]);
 
-    return { matching, error, handleMatchmaking };
+        controller.current = cont;
+        matching.current = true;
+
+        const matchmakeRequest = async () => {
+            try {
+                const id = await(await fetch(origin + "/api/genID")).text()
+
+                const response = await fetch(`${origin}/matchmake/${type}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        selfID: id,
+                        rate,
+                        roomWord,
+                    }),
+                    signal: cont.signal,
+                });
+
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+
+                const text = await response.text();
+                cb.current(id, text); // コールバックを実行
+            } catch (error) {
+                cb.current(undefined); // エラー発生時にコールバックを実行
+            } finally {
+                matching.current = false; // マッチング処理が完了
+            }
+        };
+
+        matchmakeRequest();
+
+        return () => {
+            // コンポーネントがアンマウントされるときにリクエストをキャンセル
+            cont.abort();
+            matching.current = false;
+        };
+    }, [type, rate, roomWord, origin]);
 };
 
 export default useMatchmake;

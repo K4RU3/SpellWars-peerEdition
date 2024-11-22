@@ -9,7 +9,11 @@ import useMatchmake from '../useMatchmake';
 
 export default function Matchmake({ changeComponent, matchType, rate, roomWord }) {
     const [dotCount, setDotCount] = useState(0);
-    const { handleMatchmaking } = useMatchmake();
+    useMatchmake(matchType, (self, target) => {
+        if(target !== undefined){
+            changeComponent(Battle, { selfID: self, targetID: target});
+        }
+    }, { rate, roomWord });
 
     const loadDivStyle = {
         display: 'flex',
@@ -42,22 +46,6 @@ export default function Matchmake({ changeComponent, matchType, rate, roomWord }
 
         return () => clearInterval(intervalID);
     }, []);
-
-    //matchmake
-    useEffect(() => {
-        const endMatching = handleMatchmaking({matchType, rate, roomWord}, (data) => {
-            if(data){
-                changeComponent(Battle, data);
-            }else{
-                console.warn("Failed to matchmake.");
-                changeComponent(Home);
-            }
-        })
-
-        return () => {
-            endMatching();
-        }
-    }, [handleMatchmaking, matchType, rate, roomWord, changeComponent]);
 
     return (
         <div>

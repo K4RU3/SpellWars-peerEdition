@@ -12,6 +12,8 @@ export default function Matchmake({ changeComponent, matchType, rate, roomWord }
     useMatchmake(matchType, (self, target) => {
         if(target !== undefined){
             changeComponent(Battle, { selfID: self, targetID: target});
+        }else{
+            changeComponent(Home);
         }
     }, { rate, roomWord });
 

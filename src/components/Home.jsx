@@ -71,7 +71,7 @@ export default function Home({ changeComponent }) {
                         width="30vw"
                         insideColor={"#38a0f0"}
                         outColor={"#4d1089"}
-                        onClick={()=>changeComponent(Matchmake, {matchType: "quick", roomWord: roomWord})}
+                        onClick={()=>changeComponent(Matchmake, {matchType: "room", roomWord: roomWord})}
                     />
                 </div>
                 <div style={{...ButtonRowStyle, ...{top:"75%"}}}>
@@ -81,7 +81,7 @@ export default function Home({ changeComponent }) {
                         width="30vw"
                         insideColor={"#38a0f0"}
                         outColor={"#4d1089"}
-                        onClick={()=>changeComponent(Matchmake, {matchType: "quick", rate: rate})}
+                        onClick={()=>changeComponent(Matchmake, {matchType: "ranking", rate: rate})}
                     />
                     <ButtonMain
                         accentColor="#8A44EB"

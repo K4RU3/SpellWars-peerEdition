@@ -20,7 +20,11 @@ export function AppProvider({ children }) {
             setIsDebug(false);
         }
         
-        fetch(_origin + "/api/genID").then(e=>e.text()).then(_id=>setID(_id));
+        try{
+            fetch(_origin + "/api/genID").then(e=>e.text()).then(_id=>setID(_id));
+        }catch(e){
+            setID(null);
+        }
     }, []);
 
     return (

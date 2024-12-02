@@ -30,7 +30,7 @@ export default function Home({ changeComponent }) {
     }
     const handleRateInput = (e) => {
         if(e.target.value.match(/^[0-9]+$/) || e.target.value === ""){
-            setRate(e.target.value);
+            setRate(parseInt(e.target.value));
         }
     }
 
